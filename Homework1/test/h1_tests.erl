@@ -24,7 +24,7 @@ p03_test_() ->
 		?_assertEqual(d, p03:element_at([a,b,c,d,e,f], 4)),
 		?_assertEqual(undefined, p03:element_at([a,b,c,d,e,f], 10)),
 		?_assertEqual(1, p03:element_at([1], 1)),
-		?_assertEqual(undefined, p03:element_at(["a", "b"], -1))
+		?_assertEqual("b", p03:element_at(["a", "b"], 2))
 	].
 
 p04_test_() ->
@@ -88,4 +88,47 @@ p10_test_() ->
 		?_assertEqual([{4,a}], p10:encode([a,a,a,a])),
 		?_assertEqual([{1,a}], p10:encode([a])),
 		?_assertEqual([], p10:encode([]))
+	].
+
+p11_test_() ->
+	[	
+		?_assertEqual([{4,a},b,{2,c},{2,a},d,{4,e}], p11:encode_modified([a,a,a,a,b,c,c,a,a,d,e,e,e,e])),
+		?_assertEqual([a,{3, b},c], p11:encode_modified([a,b,b,b,c])),
+		?_assertEqual([a,b], p11:encode_modified([a,b])),
+		?_assertEqual([a], p11:encode_modified([a])),
+		?_assertEqual([], p11:encode_modified([]))
+	].
+
+p12_test_() ->
+	[	
+		?_assertEqual([a,a,a,a,b,c,c,a,a,d,e,e,e,e], p12:decode_modified([{4,a},b,{2,c},{2,a},d,{4,e}])),
+		?_assertEqual([a,b,b,b,c], p12:decode_modified([a,{3, b},c])),
+		?_assertEqual([a,b], p12:decode_modified([a,b])),
+		?_assertEqual([a], p12:decode_modified([a])),
+		?_assertEqual([], p12:decode_modified([]))
+	].
+
+p13_test_() ->
+	[	
+		?_assertEqual([a,a,a,a,b,c,c,a,a,d,e,e,e,e], p13:decode([{4,a},{1,b},{2,c},{2,a},{1,d},{4,e}])),
+		?_assertEqual([a,a,a,a], p13:decode([{4,a}])),
+		?_assertEqual([a], p13:decode([{1,a}])),
+		?_assertEqual([], p13:decode([]))
+	].
+
+p14_test_() ->
+	[	
+		?_assertEqual([a,a,b,b,c,c,c,c,d,d], p14:duplicate([a,b,c,c,d])),
+		?_assertEqual([1,1,2,2,3,3], p14:duplicate([1,2,3])),
+		?_assertEqual([a,a], p14:duplicate([a])),
+		?_assertEqual([], p14:duplicate([]))
+	].
+
+p15_test_() ->
+	[	
+		?_assertEqual([a,a,a,b,b,b,c,c,c], p15:replicate([a,b,c], 3)),
+		?_assertEqual([a,b,c], p15:replicate([a,b,c], 1)),
+		?_assertEqual(["hi","hi","hi","hi","hi"], p15:replicate(["hi"], 5)),
+		?_assertEqual([], p15:replicate([], 5)),
+		?_assertEqual([], p15:replicate([], 1))
 	].
