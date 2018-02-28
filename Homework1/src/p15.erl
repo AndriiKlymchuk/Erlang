@@ -2,8 +2,8 @@
 
 -export([replicate/2]).
 
-%% Infinite loop possible if number in tuple less than 1
-%% Need to add when N > 1
+%% Infinite loop possible if N less than 1
+%% Need to add guard when N >= 1
 
 -spec(replicate(L :: list(), N :: pos_integer()) ->
 	list()).
