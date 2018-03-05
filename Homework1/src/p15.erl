@@ -17,10 +17,7 @@ replicate(L, N) ->
 	list()).
 replicate([H|T], InitN, 1, Acc) ->
 	replicate(T, InitN, InitN, [H|Acc]);
-replicate([], _, _, Acc) ->
-	Acc;
 replicate(L = [H|_], InitN, N, Acc) ->
-	replicate(L, InitN, N - 1, [H|Acc]).
-
-
-
+	replicate(L, InitN, N - 1, [H|Acc]);
+replicate([], _, _, Acc) ->
+	Acc.
