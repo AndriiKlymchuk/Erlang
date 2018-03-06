@@ -4,10 +4,8 @@
 
 -spec(compress(L :: list()) ->
 	list()).
-compress([H|T]) ->
-	p05:reverse(compress(T, [H]));
-compress([]) ->
-	[].
+compress(L) ->
+	p05:reverse(compress(L, [])).
 
 -spec(compress(L :: list(), Acc :: list()) ->
 	list()).
