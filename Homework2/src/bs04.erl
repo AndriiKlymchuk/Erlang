@@ -23,7 +23,7 @@
 %% ===================================================================
 
 -spec(decode_xml(Bin :: binary()) ->
-	tag() | {error, bad_argument}).
+	tag() | {error, badarg}).
 decode_xml(Bin) ->
 	try parse_tag(string:trim(Bin, leading, "\s\n\t\r")) of
 		{DecodedXML, _} ->
