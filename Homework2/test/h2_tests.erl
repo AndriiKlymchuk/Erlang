@@ -35,10 +35,10 @@ bs03_test_() ->
 		?_assertEqual([<<"Text with four words">>],
 			bs03:split(<<"Text with four words">>, "")),
 		?_assertEqual([<<"a">>, <<"b">>, <<"c">>], bs03:split(<<"a*b*c">>, "*")),
-		?_assertEqual([<<"Word">>], bs03:split(<<"  Word  ">>, " ")),
-		?_assertEqual([<<"-Word">>, <<"-">>], bs03:split(<<"---Word---">>, "--")),
+		?_assertEqual([<<>>,<<>>,<<"Word">>,<<>>,<<>>], bs03:split(<<"  Word  ">>, " ")),
+		?_assertEqual([<<>>,<<"-Word">>,<<"-">>], bs03:split(<<"---Word---">>, "--")),
 		?_assertEqual([<<"Word">>], bs03:split(<<"Word">>, " ")),
-		?_assertEqual([], bs03:split(<<>>, " "))
+		?_assertEqual([<<>>], bs03:split(<<>>, " "))
 	].
 
 bs04_test_() ->

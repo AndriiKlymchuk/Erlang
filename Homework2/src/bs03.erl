@@ -6,26 +6,20 @@
 	[binary()]).
 split(Bin, Del) when is_list(Del) ->
 	split(Bin, list_to_binary(Del));
+split(Bin, <<>>) ->
+	[Bin];
 split(Bin, Del) ->
-	lists:reverse(split(Bin, Del, size(Del), [<<>>])).
+	lists:reverse(split(Bin, Del, [])).
 
 -spec(split(Bin  	:: binary(),
 			Del  	:: binary(),
-			DelSize :: non_neg_integer(),
 			Acc  	:: list()) ->
 	[binary()]).
-split(Bin, <<>>, _, _) ->
-	[Bin];
-split(Bin, Del, DelSize, Acc = [Word|T]) ->
-	case Bin of
-		<<Del:DelSize/binary, Rest/binary>> when Word =:= <<>> ->
-			split(Rest, Del, DelSize, Acc);
-		<<Del:DelSize/binary, Rest/binary>> ->
-			split(Rest, Del, DelSize, [<<>>|Acc]);
-		<<Letter, Rest/binary>> ->
-			split(Rest, Del, DelSize, [<<Word/binary, Letter>>|T]);
-		<<>> when Word =:= <<>> ->
-			T;
-		<<>> ->
-			Acc
+split(Bin, Del, Acc) ->
+	case binary:match(Bin, Del) of
+		{PLen, DLen} ->
+			<<Part:PLen/binary, _:DLen/binary, Rest/binary>> = Bin,
+			split(Rest, Del, [Part|	Acc]);
+		nomatch ->
+			[Bin|Acc]
 	end.	
