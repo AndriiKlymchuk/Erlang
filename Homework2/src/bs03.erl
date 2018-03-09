@@ -2,7 +2,7 @@
 
 -export([split/2]).
 
--spec(split(Bin :: binary() | list(), Del :: list()) ->
+-spec(split(Bin :: binary(), Del :: list() | binary()) ->
 	[binary()]).
 split(Bin, Del) when is_list(Del) ->
 	split(Bin, list_to_binary(Del));
@@ -11,7 +11,7 @@ split(Bin, Del) ->
 
 -spec(split(Bin  	:: binary(),
 			Del  	:: binary(),
-			DelSize :: binary(),
+			DelSize :: non_neg_integer(),
 			Acc  	:: list()) ->
 	[binary()]).
 split(Bin, <<>>, _, _) ->

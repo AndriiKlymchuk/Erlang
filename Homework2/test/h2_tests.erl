@@ -40,3 +40,39 @@ bs03_test_() ->
 		?_assertEqual([<<"Word">>], bs03:split(<<"Word">>, " ")),
 		?_assertEqual([], bs03:split(<<>>, " "))
 	].
+
+bs04_test_() ->
+	[	
+		?_assertEqual(
+			{<<"start">>, [], [
+ 				{<<"item">>, [], [<<"Text1">>]},
+ 				{<<"item">>, [], [<<"Text2">>]}
+			]},
+			bs04:decode_xml(<<"<start><item>Text1</item><item>Text2</item></start>">>)),
+		?_assertEqual(
+			{<<"start">>, [], [
+ 				{<<"br">>, [], []},
+ 				{<<"br">>, [], []},
+ 				{<<"item">>, [], [<<"Text1">>]}
+			]},
+			bs04:decode_xml(<<"<start><br/><br/><item>Text1</item></start>">>)),
+		?_assertEqual(
+			{<<"start">>, [], [
+ 				{<<"item">>, [], [
+ 					{<<"nested_item">>, [], [<<"Text">>]}
+ 				]}
+			]},
+			bs04:decode_xml(<<"<start><item><nested_item>Text</nested_item></item></start>">>)),
+		?_assertEqual(
+			{<<"start">>, [{<<"attr1">>, <<"1">>}, {<<"attr2">>, <<"2">>}], [<<"Text">>]},
+			bs04:decode_xml(<<"<start attr1='1' attr2='2'>Text</start>">>)),
+		?_assertEqual(
+			{<<"start">>, [{<<"attr1">>, <<"1">>}, {<<"attr2">>, <<"2">>}], [<<"Text">>]},
+			bs04:decode_xml(<<"  <start attr1='1' attr2='2'  >  Text   </start  >  ">>)),
+		?_assertEqual({<<"br">>, [], []},bs04:decode_xml(<<"<br/>">>)),
+		?_assertEqual({error, badarg}, bs04:decode_xml(<<"<start>">>)),
+		?_assertEqual({error, badarg}, bs04:decode_xml(<<"<start></end>">>)),
+		?_assertEqual({error, badarg}, bs04:decode_xml(<<"start">>)),
+		?_assertEqual({error, badarg}, bs04:decode_xml(<<"<start attr1>Text</start>">>)),
+		?_assertEqual({error, badarg}, bs04:decode_xml(<<"<start attr1=1>Text</start>">>))
+	].
