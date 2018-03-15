@@ -1,12 +1,5 @@
-TEST_FILE="h1_tests"
+PROJECT = Homework1
+PROJECT_DESCRIPTION = New project
+PROJECT_VERSION = 0.1.0
 
-CMD=$(subst filename,${TEST_FILE},"eunit:test(filename, [verbose])")
-
-all:
-	erl -make
-
-test: all
-	erl -noshell -pa ebin -eval ${CMD} -s init stop
-
-clean:
-	rm -rf ebin/*
+include erlang.mk

@@ -19,7 +19,7 @@ split(Bin, Del, Acc) ->
 	case binary:match(Bin, Del) of
 		{PLen, DLen} ->
 			<<Part:PLen/binary, _:DLen/binary, Rest/binary>> = Bin,
-			split(Rest, Del, [Part|	Acc]);
+			split(Rest, Del, [Part|Acc]);
 		nomatch ->
 			[Bin|Acc]
 	end.	
