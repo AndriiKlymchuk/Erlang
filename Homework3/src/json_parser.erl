@@ -37,13 +37,14 @@ start_decode(Bin, Opt) ->
 
 -spec(parse_object(binary(), #opt{}) ->
 	{object(), Rest :: binary()}).
-parse_object(<<"}", Rest/binary>>, #opt{format=map})      -> {#{}, Rest};
-parse_object(<<"}", Rest/binary>>, #opt{format=proplist}) -> {[], Rest};
-parse_object(Bin, Opt) -> parse_props(Bin, [], Opt).
+parse_object(<<"}", Rest/binary>>, Opt) ->
+	{create_object([], Opt), Rest};
+parse_object(Bin, Opt) ->
+	parse_props(Bin, [], Opt).
 
 -spec(parse_props(binary(), Acc :: list(), #opt{}) ->
 	{object(), Rest :: binary()}).
-parse_props(<<$", Rest0/binary>>, Acc, Opt = #opt{format=Format}) ->
+parse_props(<<$", Rest0/binary>>, Acc, Opt) ->
 	{Key = <<_:1/binary, _/binary>>, Rest1} = string(Rest0),
 	<<":", Rest2/binary>> = trim_left(Rest1),
 	{Value, Rest3} = parse_value(trim_left(Rest2), Opt),
@@ -52,14 +53,14 @@ parse_props(<<$", Rest0/binary>>, Acc, Opt = #opt{format=Format}) ->
 		<<",", Rest4/binary>> ->
 			parse_props(trim_left(Rest4), NewAcc, Opt);
 		<<"}", Rest4/binary>> ->
-			case Format of
-				map      -> {maps:from_list(NewAcc), Rest4};
-			    proplist ->	{lists:reverse(NewAcc),  Rest4}
-			end
+			{create_object(NewAcc, Opt), Rest4}
 	end.
 
--spec(parse_value(binary(), #opt{}) ->
-	{value(), Rest :: binary()}).
+-spec(create_object(list(), #opt{}) -> object()).
+create_object(L, #opt{format=map})      -> maps:from_list(L);
+create_object(L, #opt{format=proplist}) -> lists:reverse(L).
+
+-spec(parse_value(binary(), #opt{}) -> {value(), Rest :: binary()}).
 parse_value(<<"false", Rest/binary>>, _) -> {false, Rest};
 parse_value(<<"true", Rest/binary>>, _)  -> {true, Rest};
 parse_value(<<"null", Rest/binary>>, _)  -> {null, Rest};
@@ -68,8 +69,7 @@ parse_value(<<${, Rest/binary>>, Opt) -> parse_object(trim_left(Rest), Opt);
 parse_value(<<$", Rest/binary>>, _)   -> string(Rest);
 parse_value(<<Bin/binary>>, _)        -> number(Bin).
 
--spec(parse_array(binary(), #opt{}) ->
-	{list(), Rest :: binary()}).
+-spec(parse_array(binary(), #opt{}) -> {list(), Rest :: binary()}).
 parse_array(<<"]", Rest/binary>>, _) -> {[], Rest};
 parse_array(<<Bin/binary>>, Opt)     -> parse_array(Bin, [], Opt).
 
@@ -91,12 +91,9 @@ string(Bin) ->
 	<<String:Len/binary, _, Rest/binary>> = Bin,
 	{String, Rest}.
 
--spec(number(binary()) ->
-	{number(), Rest :: binary()}).
-number(<<$-, Rest/binary>>) ->
-	number_integer_part(Rest, -1);
-number(Bin) ->
-	number_integer_part(Bin, 1).
+-spec(number(binary()) -> {number(), Rest :: binary()}).
+number(<<$-, Rest/binary>>) -> number_integer_part(Rest, -1);
+number(Bin)                 -> number_integer_part(Bin, 1).
 
 -spec(number_integer_part(binary(), Sign :: 1 | -1) ->
 	{number(), Rest :: binary()}).
@@ -129,20 +126,17 @@ number_fraction_part_rest(<<C, Rest/binary>>,
 number_fraction_part_rest(Bin, Num, DecimalsNum, Sign) when DecimalsNum > 0 ->
 	{Num / math:pow(10, DecimalsNum) * Sign, Bin}. 
 
--spec(trim_left(binary()) ->
-	binary()).
+-spec(trim_left(binary()) -> binary()).
 trim_left(<<"\s", Rest/binary>>) -> trim_left(Rest);
 trim_left(<<"\t", Rest/binary>>) -> trim_left(Rest);
 trim_left(<<"\n", Rest/binary>>) -> trim_left(Rest);
 trim_left(<<"\r", Rest/binary>>) -> trim_left(Rest);
 trim_left(Bin)                   -> Bin.
 
--spec(prep_opt([opt()]) ->
-	#opt{}).
+-spec(prep_opt([opt()]) -> #opt{}).
 prep_opt(OptList) -> prep_opt(OptList, #opt{}).
 
--spec(prep_opt([opt()], #opt{}) ->
-	#opt{}).
+-spec(prep_opt([opt()], #opt{}) -> #opt{}).
 prep_opt([{format, F}|T], Opt) -> prep_opt(T, Opt#opt{format=F});
 prep_opt([_|T], Opt)           -> prep_opt(T, Opt);
 prep_opt([], Opt)              -> Opt.
