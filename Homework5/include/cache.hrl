@@ -1,0 +1,2 @@
+-define(TO_SECS(Datetime), calendar:datetime_to_gregorian_seconds(Datetime)).
+-define(TAB_NAME, cache).
