@@ -19,10 +19,10 @@ create() ->
 
 -spec(insert(Key 	  :: any(),
 			 Value 	  :: any(),
-			 LifeTime :: non_neg_integer()) -> ok).
-insert(Key, Value, LifeTime) ->
-	ExpirationTime = current_time() + LifeTime,
-	try ets:insert(?MODULE, {Key, Value, ExpirationTime}) of
+			 Lifetime :: non_neg_integer()) -> ok).
+insert(Key, Value, Lifetime) ->
+	ExpiredAt = current_time() + Lifetime,
+	try ets:insert(?MODULE, {Key, Value, ExpiredAt}) of
 		true -> ok
 	catch
 		error:badarg -> {error, no_exists}
@@ -34,12 +34,12 @@ insert(Key, Value, LifeTime) ->
 lookup(Key) ->
 	Now = current_time(),
 	try
-		ets:select(?MODULE, ets:fun2ms(
-			fun({RecKey, Value, ExpTime})
-				when RecKey =:= Key, ExpTime > Now -> Value end))
+		ets:lookup(?MODULE, Key)
 	of
-		[Value] -> {ok, Value};
-		[] 		-> {error, undefined}
+		[{_, Value, ExpiredAt}] when ExpiredAt >= Now ->
+			{ok, Value};
+		_ ->
+			not_found
 	catch
 		error:badarg -> {error, no_exists}
 	end.
@@ -115,8 +115,8 @@ lookup_old(_) ->
 	LookupRes0 = my_cache:lookup(a),
 	LookupRes1 = my_cache:lookup("b"),
 	TableContent = ets:match_object(?MODULE, {'_', '_', '_'}),
-	[?_assertEqual({error, undefined}, LookupRes0),
-	 ?_assertEqual({error, undefined}, LookupRes1),
+	[?_assertEqual(not_found, LookupRes0),
+	 ?_assertEqual(not_found, LookupRes1),
 	 ?_assertMatch([{a, <<"a">>, _}, {"b", 2, _}], TableContent)].
 
 delete_old(_) ->
