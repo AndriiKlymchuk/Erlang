@@ -3,3 +3,4 @@
 */.erlang.mk
 **/*.beam
 */logs
+*/deps

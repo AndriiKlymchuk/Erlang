@@ -1,0 +1,18 @@
+{application, cache, [
+    {description, "cache storage"},
+    {vsn, "0.0.1"},
+    {registered, [cache_server]},
+    {applications, [
+        kernel,
+        stdlib,
+        cowboy,
+        jsone
+    ]},
+    {mod, { cache_app, []}},
+    {modules, []},
+    {env, [
+        {options, [
+            {drop_interval, 3600}
+        ]}
+    ]}
+ ]}.
